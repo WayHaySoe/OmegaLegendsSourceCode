@@ -24,6 +24,8 @@ Aimbot - options:
  # Notes
  Offsets may be outdated, so update them or otherwise use ByNameModding for Auto-Offsets-Update.
  
+ Telekill and Masskill can also be easily implemented 
+ 
  # Credit
  * Mobean -[Drawing Source Code](https://github.com/zeno544/esp-source-code-for-ios)
  
