@@ -19,7 +19,7 @@ Aimbot - options:
   
   * Slider
   
- "Save Me" - when knocked down sets your player location to your teammate
+ "Save Me" - when knocked down, sets your player location to your teammate for revive
  
  # Notes
  Offsets may be outdated, so update them or otherwise use ByNameModding for Auto-Offsets-Update.
