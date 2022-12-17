@@ -23,7 +23,7 @@ bool (*get_IsVisible)(void *s) = (bool (*)(void *))getRealOffset(0x101A596EC);
 
 Quaternion lookRotation;
 
-std::vector<player_t *> *gey = nullptr;
+std::vector<player_t *> *playerarray = nullptr;
 
 Vector3 w2ss(Vector3 worldlocation) {
   Vector3 screenlocation;
@@ -72,9 +72,9 @@ void *myplayer = NULL;
 void *enemyplayer = NULL;
 
 void Remove(void *og){
-	for(int i = 0; i<gey->size(); i++){
-		if((*gey)[i]->object == og){
-			gey->erase(gey->begin() + i);
+	for(int i = 0; i<playerarray->size(); i++){
+		if((*playerarray)[i]->object == og){
+			playerarray->erase(playerarray->begin() + i);
 			
 			return;
 		}
@@ -82,8 +82,8 @@ void Remove(void *og){
 }
 
 void ClearVector(){
-	for(int i = 0; i < gey->size(); i++){
-		gey->erase(gey->begin() + i);
+	for(int i = 0; i < playerarray->size(); i++){
+		playerarray->erase(playerarray->begin() + i);
 	}
 	return;
 }
@@ -99,7 +99,7 @@ void NW_Update(void *og){
 
 	float height;
 	float width;
-	float ok = [[switches getValueFromSwitch:@"Aimbot X Slider"] floatValue];
+	float x_slider = [[switches getValueFromSwitch:@"Aimbot X Slider"] floatValue];
 	float ko;
 	
 	if(og != NULL){
@@ -163,8 +163,8 @@ void NW_Update(void *og){
 		Vector3 w2s = w2ss(w);
 		w2s.y = fabsf(1-w2s.y);
 		
-		if(!gey){
-			gey = new std::vector<player_t *>();
+		if(!playerarray){
+			playerarray = new std::vector<player_t *>();
 		}
 		
 		if(scope == 3){
@@ -182,23 +182,27 @@ void NW_Update(void *og){
 		
 		width = height/2;
 
-		for(int i = 0; i < gey->size(); i++) {
-			if((*gey)[i]->object == og){
+		// Update player object of our player array
+		for(int i = 0; i < playerarray->size(); i++) {
+			if((*playerarray)[i]->object == og){
 				inarray = true;
-				if(((w2s.x <= 1 && w2s.x >= 0) && (w2s.y <= 1 && w2s.y >= 0) && w2s.z >= 0) && (og != myplayer && og != teammate) && !m_bDead((*gey)[i]->object) && get_isInitialized(getAccessToAnimator)){
-					(*gey)[i]->box = CGRectMake(w2s.x*main.frame.size.width-width/2,w2s.y*main.frame.size.height,width,-height);
-					(*gey)[i]->distance = distance;
-					(*gey)[i]->topofbox = CGPointMake(w2s.x*main.frame.size.width,w2s.y*main.frame.size.height + height);
-					(*gey)[i]->bottomofbox = CGPointMake(w2s.x*main.frame.size.width,w2s.y*main.frame.size.height);
-					(*gey)[i]->healthbar = CGRectMake(w2s.x*main.frame.size.width+(width/2+width/8),w2s.y*main.frame.size.height,width/8,height);
-					(*gey)[i]->crouch_knocked = mystring;
+				// within screenview && not dead && enemy player && initialized
+				if(((w2s.x <= 1 && w2s.x >= 0) && (w2s.y <= 1 && w2s.y >= 0) && w2s.z >= 0) && (og != myplayer && og != teammate) && !m_bDead((*playerarray)[i]->object) && get_isInitialized(getAccessToAnimator)){
+					(*playerarray)[i]->box = CGRectMake(w2s.x*main.frame.size.width-width/2,w2s.y*main.frame.size.height,width,-height);
+					(*playerarray)[i]->distance = distance;
+					(*playerarray)[i]->topofbox = CGPointMake(w2s.x*main.frame.size.width,w2s.y*main.frame.size.height + height);
+					(*playerarray)[i]->bottomofbox = CGPointMake(w2s.x*main.frame.size.width,w2s.y*main.frame.size.height);
+					(*playerarray)[i]->healthbar = CGRectMake(w2s.x*main.frame.size.width+(width/2+width/8),w2s.y*main.frame.size.height,width/8,height);
+					(*playerarray)[i]->crouch_knocked = mystring;
 				}
 				else{
-					Remove((*gey)[i]->object);
-					es.players = gey;
+					Remove((*playerarray)[i]->object);
+					es.players = playerarray;
 				}
 			}
 		}
+
+		// Store player object into our player array that are not in our array
 		if(!inarray){
 			player_t *newplayer = new player_t();
 			if(((w2s.x <= 1 && w2s.x >= 0) && (w2s.y <= 1 && w2s.y >= 0) && w2s.z >= 0) && (og != myplayer && og != teammate) && !m_bDead(og) && get_isInitialized(getAccessToAnimator)){
@@ -210,26 +214,28 @@ void NW_Update(void *og){
 				newplayer->bottomofbox = CGPointMake(w2s.x*main.frame.size.width,w2s.y*main.frame.size.height);
 				newplayer->healthbar = CGRectMake(w2s.x*main.frame.size.width+(width/2+width/8),w2s.y*main.frame.size.height,width/8,height);
 				newplayer->crouch_knocked = mystring;
-				gey->push_back(newplayer);
+				playerarray->push_back(newplayer);
 			}
 		}
+
 		Vector3 enemyloco;
 		
 		int counter = 0;
 		int index = 0;
 		index = counter;
 		
-		if(!gey->empty()){
-			float smallest = (*gey)[0]->distance;
-			for(int i = 0; i < gey->size(); i++) {
+		// Finds the closest enemy player
+		if(!playerarray->empty()){
+			float smallest = (*playerarray)[0]->distance;
+			for(int i = 0; i < playerarray->size(); i++) {
 				counter ++;
-				if(smallest > (*gey)[i]->distance){
-					smallest = (*gey)[i]->distance;
+				if(smallest > (*playerarray)[i]->distance){
+					smallest = (*playerarray)[i]->distance;
 					index = counter-1;
 				}
 			}
-			enemyplayer = (*gey)[index]->object;
-			enemyloco = get_playerloco((*gey)[index]->object);
+			enemyplayer = (*playerarray)[index]->object;
+			enemyloco = get_playerloco((*playerarray)[index]->object);
 		}
 		
 		if(x.z < enemyloco.z && scope == 3){
@@ -239,13 +245,14 @@ void NW_Update(void *og){
 			ko = -0.37;
 		}
 		
+		// Aimbot customization
 		if(enemyplayer) {
 			if(!m_bDead(enemyplayer)){
 				void *getAccessTovThirdPersonCamera = *(void**)((uint64_t)og + 0x88);
-				if([switches isSwitchOn:@"Shoot To Aimbot"] && m_bShooting(myplayer) && !gey->empty()){
+				if([switches isSwitchOn:@"Shoot To Aimbot"] && m_bShooting(myplayer) && !playerarray->empty()){
 					*(bool*)((uint64_t)getAccessTovThirdPersonCamera + 0x4B) = true;
 					if(isCrouching(enemyplayer) && !isCrouching(myplayer)){
-						lookRotation = Quaternion::LookRotation((enemyloco - Vector3(ko,ok,0)) - x, Vector3(0, 1, 0));	
+						lookRotation = Quaternion::LookRotation((enemyloco - Vector3(ko,x_slider,0)) - x, Vector3(0, 1, 0));	
 					}
 					else{
 						if([switches isSwitchOn:@"Head"]){
@@ -272,7 +279,7 @@ void NW_Update(void *og){
 		if([switches isSwitchOn:@"Clear"]){
 			ClearVector();
 		}
-		es.players = gey;
+		es.players = playerarray;
 	}
 	OG_Update(og);
 }
@@ -377,7 +384,7 @@ static void didFinishLaunching(CFNotificationCenterRef center, void *observer, C
       });        
     }];
 
-    [alert addButton: @"I’m Gay" actionBlock: ^(void) {
+    [alert addButton: @"Thank you" actionBlock: ^(void) {
       timer(2) {
         setupMenu();
       });
