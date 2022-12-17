@@ -24,10 +24,11 @@ Aimbot - options:
  # Notes
  Offsets may be outdated, so update them or otherwise use ByNameModding for Auto-Offsets-Update.
  
+ Telekill and Masskill can also be easily implemented 
+ 
  # Official Release
  https://www.iosmods.com/topic/4916-omega-legend%E2%80%AAs%E2%80%AC%C2%A0esp-rapid-fire-fly-and-23-more-v1077/?tab=comments#comment-123498
  
- Telekill and Masskill can also be easily implemented 
  
  # Credit
  * Mobean -[Drawing Source Code](https://github.com/zeno544/esp-source-code-for-ios)
