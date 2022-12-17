@@ -1,4 +1,4 @@
-# OmegaLegendsSourceCode
+# Omega Legends Source Code
 My aimbot and ESP source code of Omega Legends By IGG.COM v1.0.77 for iOS & Android
 # Features
 ESP - options:
